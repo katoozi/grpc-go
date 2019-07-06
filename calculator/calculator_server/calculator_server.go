@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net"
 
@@ -12,6 +13,7 @@ import (
 type server struct{}
 
 func (s *server) Sum(ctx context.Context, req *calculatorpb.SumRequest) (*calculatorpb.SumResponse, error) {
+	fmt.Printf("Sum Service Invoked: %v\n", req)
 	result := req.FirstNumber + req.SecondNumber
 	return &calculatorpb.SumResponse{
 		Result: result,
@@ -19,6 +21,7 @@ func (s *server) Sum(ctx context.Context, req *calculatorpb.SumRequest) (*calcul
 }
 
 func (s *server) Div(ctx context.Context, req *calculatorpb.DivRequest) (*calculatorpb.DivResponse, error) {
+	fmt.Printf("Div Service Invoked: %v\n", req)
 	result := req.FirstNumber / req.SecondNumber
 	return &calculatorpb.DivResponse{
 		Result: result,
@@ -26,6 +29,7 @@ func (s *server) Div(ctx context.Context, req *calculatorpb.DivRequest) (*calcul
 }
 
 func (s *server) Multiply(ctx context.Context, req *calculatorpb.MultiplyRequest) (*calculatorpb.MultiplyResponse, error) {
+	fmt.Printf("Multiply Service Invoked: %v\n", req)
 	result := req.FirstNumber * req.SecondNumber
 	return &calculatorpb.MultiplyResponse{
 		Result: result,
@@ -33,6 +37,7 @@ func (s *server) Multiply(ctx context.Context, req *calculatorpb.MultiplyRequest
 }
 
 func (s *server) Sub(ctx context.Context, req *calculatorpb.SubRequest) (*calculatorpb.SubResponse, error) {
+	fmt.Printf("Sub Service Invoked: %v\n", req)
 	result := req.FirstNumber - req.SecondNumber
 	return &calculatorpb.SubResponse{
 		Result: result,
