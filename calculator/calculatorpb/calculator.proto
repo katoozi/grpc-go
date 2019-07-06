@@ -1,0 +1,49 @@
+syntax = "proto3";
+
+package calculator;
+
+option go_package = "calculatorpb";
+
+// sum request and response
+message SumRequest{
+    int32 first_number = 1;
+    int32 second_number = 2;
+}
+message SumResponse{
+    int32 result = 1;
+}
+
+// div request and response
+message DivRequest{
+    int32 first_number = 1;
+    int32 second_number = 2;
+}
+message DivResponse{
+    int32 result = 1;
+}
+
+// multiply request and response
+message MultiplyRequest{
+    int32 first_number = 1;
+    int32 second_number = 2;
+}
+message MultiplyResponse{
+    int32 result = 1;
+}
+
+// sub request and response
+message SubRequest{
+    int32 first_number = 1;
+    int32 second_number = 2;
+}
+message SubResponse{
+    int32 result = 1;
+}
+
+// CalculateService Service. all services that we provide.
+service CalculateService{
+    rpc Sum(SumRequest) returns (SumResponse){};
+    rpc Div(DivRequest) returns (DivResponse){};
+    rpc Multiply(MultiplyRequest) returns (MultiplyResponse){};
+    rpc Sub(SubRequest) returns (SubResponse){};
+}
