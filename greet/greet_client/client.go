@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 
@@ -9,8 +10,6 @@ import (
 )
 
 func main() {
-	fmt.Println("Hello Im Client.")
-
 	// we dont have ssl that why we have to use this => grpc.WithInsecure()
 	cc, err := grpc.Dial("localhost:50051", grpc.WithInsecure())
 	if err != nil {
@@ -18,6 +17,23 @@ func main() {
 	}
 	defer cc.Close()
 
+	// Create CLient
 	c := greetpb.NewGreetServiceClient(cc)
-	fmt.Printf("Created Client: %f", c)
+
+	doUnary(c)
+}
+
+func doUnary(c greetpb.GreetServiceClient) {
+	fmt.Println("starting to do unary rpc...")
+	request := &greetpb.GreetRequest{
+		Greeting: &greetpb.Greeting{
+			FirstName: "Mohammad",
+			LastName:  "Katoozi",
+		},
+	}
+	gResponse, err := c.Greet(context.Background(), request)
+	if err != nil {
+		log.Fatalf("error while calling Greeting: %v", err)
+	}
+	log.Printf("gRPC Response: %v", gResponse.Result)
 }
