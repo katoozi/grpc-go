@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"io"
 	"log"
 
 	"github.com/katoozi/grpc-go-course/calculator/calculatorpb"
@@ -18,7 +19,33 @@ func main() {
 
 	c := calculatorpb.NewCalculateServiceClient(cc)
 
-	doUnary(c)
+	// do unary services
+	// doUnary(c)
+
+	// do server streaming rpc
+	doServerStreaming(c)
+}
+
+func doServerStreaming(c calculatorpb.CalculateServiceClient) {
+	fmt.Println("starting to do server streaming rpc...")
+
+	req := &calculatorpb.PrimeNumberCompositionRequest{
+		Number: 40,
+	}
+	stream, err := c.PrimeNumberComposition(context.Background(), req)
+	if err != nil {
+		log.Fatalf("Error While call PrimeNumberComposition: %v", err)
+	}
+	for {
+		msg, err := stream.Recv()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			log.Fatalf("Error while Read Stream: %v", err)
+		}
+		log.Printf("Response From Server. Prime Number: %d", msg.GetResult())
+	}
 }
 
 func doUnary(c calculatorpb.CalculateServiceClient) {

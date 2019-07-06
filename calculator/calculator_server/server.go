@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"time"
 
 	"github.com/katoozi/grpc-go-course/calculator/calculatorpb"
 	"google.golang.org/grpc"
@@ -42,6 +43,34 @@ func (*server) Sub(ctx context.Context, req *calculatorpb.SubRequest) (*calculat
 	return &calculatorpb.SubResponse{
 		Result: result,
 	}, nil
+}
+
+// return list of primes less than N
+func sieveOfEratosthenes(N int) (primes []int) {
+	b := make([]bool, N)
+	for i := 2; i < N; i++ {
+		if b[i] == true {
+			continue
+		}
+		primes = append(primes, i)
+		for k := i * i; k < N; k += i {
+			b[k] = true
+		}
+	}
+	return
+}
+
+func (*server) PrimeNumberComposition(req *calculatorpb.PrimeNumberCompositionRequest, stream calculatorpb.CalculateService_PrimeNumberCompositionServer) error {
+	fmt.Printf("PrimeNumberComposition Service Invoked: %v\n", req)
+	primes := sieveOfEratosthenes(int(req.GetNumber()))
+	for _, p := range primes {
+		res := &calculatorpb.PrimeNumberCompositionResponse{
+			Result: int32(p),
+		}
+		stream.Send(res)
+		time.Sleep(1 * time.Second)
+	}
+	return nil
 }
 
 func main() {
