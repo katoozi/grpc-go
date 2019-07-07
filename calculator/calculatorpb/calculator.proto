@@ -48,6 +48,14 @@ message PrimeNumberCompositionResponse{
     int32 result = 1;
 }
 
+message ComputeAvgRequest{
+    int32 number = 1;
+}
+
+message ComputeAvgResponse{
+    int32 result = 1;
+}
+
 // CalculateService Service. all services that we provide.
 service CalculateService{
     // unary rpc services
@@ -58,4 +66,7 @@ service CalculateService{
 
     // server streaming rpc services
     rpc PrimeNumberComposition(PrimeNumberCompositionRequest) returns (stream PrimeNumberCompositionResponse){};
+
+    // client streaming
+    rpc ComputeAvg(stream ComputeAvgRequest) returns (ComputeAvgResponse){};
 }
