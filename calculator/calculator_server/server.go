@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"io"
 	"log"
 	"net"
 	"time"
@@ -71,6 +72,26 @@ func (*server) PrimeNumberComposition(req *calculatorpb.PrimeNumberCompositionRe
 		time.Sleep(1 * time.Second)
 	}
 	return nil
+}
+
+func (*server) ComputeAvg(stream calculatorpb.CalculateService_ComputeAvgServer) error {
+	fmt.Println("ComputeAvg Service Invoked")
+
+	var result int32
+	var count int32
+	for {
+		req, err := stream.Recv()
+		if err == io.EOF {
+			return stream.SendAndClose(&calculatorpb.ComputeAvgResponse{
+				Result: result / count,
+			})
+		}
+		if err != nil {
+			log.Fatalf("Error while close stream: %v", err)
+		}
+		count++
+		result += req.GetNumber()
+	}
 }
 
 func main() {
