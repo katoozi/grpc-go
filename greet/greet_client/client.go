@@ -29,7 +29,89 @@ func main() {
 	// doServerStreaming(c)
 
 	// do client streaming
-	doClientStreaming(c)
+	// doClientStreaming(c)
+
+	// do BiDi streaming
+	doBiDiStreaming(c)
+}
+
+func doBiDiStreaming(c greetpb.GreetServiceClient) {
+	fmt.Println("starting to do BiDi streaming rpc...")
+
+	// we create a stream by invoking the client
+	stream, err := c.GreetEveryone(context.Background())
+	if err != nil {
+		log.Fatalf("Error while calling GreetEveryone rpc: %v\n", err)
+	}
+
+	requests := []*greetpb.GreetEveryoneRequest{
+		&greetpb.GreetEveryoneRequest{
+			Greeting: &greetpb.Greeting{
+				FirstName: "mohammad",
+			},
+		},
+		&greetpb.GreetEveryoneRequest{
+			Greeting: &greetpb.Greeting{
+				FirstName: "ali",
+			},
+		},
+		&greetpb.GreetEveryoneRequest{
+			Greeting: &greetpb.Greeting{
+				FirstName: "reza",
+			},
+		},
+		&greetpb.GreetEveryoneRequest{
+			Greeting: &greetpb.Greeting{
+				FirstName: "ghasem",
+			},
+		},
+		&greetpb.GreetEveryoneRequest{
+			Greeting: &greetpb.Greeting{
+				FirstName: "amin",
+			},
+		},
+		&greetpb.GreetEveryoneRequest{
+			Greeting: &greetpb.Greeting{
+				FirstName: "mahyar",
+			},
+		},
+	}
+
+	waitc := make(chan struct{})
+
+	// we send a bunch of messages to the client (go routine)
+	go func() {
+		// function to send a bunch of messages
+		for _, request := range requests {
+			fmt.Printf("Send Request: %v\n", request)
+			err := stream.Send(request)
+			if err != nil {
+				log.Fatalf("Error while sending requests: %v", err)
+			}
+			time.Sleep(1 * time.Second)
+		}
+		stream.CloseSend()
+	}()
+
+	// we receive a bunch of messages from the server (go routine)
+	go func() {
+		// function to receive a bunch of messages
+		for {
+			res, err := stream.Recv()
+			if err == io.EOF {
+				break
+			}
+			if err != nil {
+				log.Fatalf("Error while reading stream: %v", err)
+				break
+			}
+			fmt.Printf("Response From Server: %v\n", res)
+		}
+		close(waitc)
+	}()
+
+	// block until everything in done
+	<-waitc
 }
 
 func doClientStreaming(c greetpb.GreetServiceClient) {
