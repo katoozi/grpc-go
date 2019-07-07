@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"time"
 
 	"github.com/katoozi/grpc-go-course/calculator/calculatorpb"
 	"google.golang.org/grpc"
@@ -23,7 +24,50 @@ func main() {
 	// doUnary(c)
 
 	// do server streaming rpc
-	doServerStreaming(c)
+	// doServerStreaming(c)
+
+	// do client streaming
+	doClientStreaming(c)
+}
+
+func doClientStreaming(c calculatorpb.CalculateServiceClient) {
+	fmt.Println("starting to do client streaming rpc...")
+
+	requests := []*calculatorpb.ComputeAvgRequest{
+		&calculatorpb.ComputeAvgRequest{
+			Number: 1,
+		},
+		&calculatorpb.ComputeAvgRequest{
+			Number: 2,
+		},
+		&calculatorpb.ComputeAvgRequest{
+			Number: 3,
+		},
+		&calculatorpb.ComputeAvgRequest{
+			Number: 4,
+		},
+		&calculatorpb.ComputeAvgRequest{
+			Number: 5,
+		},
+	}
+	stream, err := c.ComputeAvg(context.Background())
+	if err != nil {
+		log.Fatalf("Error while calling ComputeAvg: %v", err)
+	}
+
+	for _, req := range requests {
+		fmt.Printf("Sending Request: %v\n", req)
+		err := stream.Send(req)
+		if err != nil {
+			log.Fatalf("Error while send request: %v", err)
+		}
+		time.Sleep(1 * time.Second)
+	}
+	res, err := stream.CloseAndRecv()
+	if err != nil {
+		log.Fatalf("Error while close and receive: %v", err)
+	}
+	fmt.Printf("Request From Server: %v\n", res)
 }
 
 func doServerStreaming(c calculatorpb.CalculateServiceClient) {
