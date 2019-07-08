@@ -9,6 +9,8 @@ import (
 
 	"github.com/katoozi/grpc-go-course/calculator/calculatorpb"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 func main() {
@@ -30,7 +32,39 @@ func main() {
 	// doClientStreaming(c)
 
 	// fo BiDi streaming
-	doBiDiStreaming(c)
+	// doBiDiStreaming(c)
+
+	// do error unary
+	doErroUnary(c)
+}
+
+func doErroUnary(c calculatorpb.CalculateServiceClient) {
+	fmt.Println("starting to do Error Unary streaming rpc...")
+
+	// correct call
+	doErrorUnaryHandling(c, 16)
+	doErrorUnaryHandling(c, -16)
+}
+
+func doErrorUnaryHandling(c calculatorpb.CalculateServiceClient, numner int32) {
+	request := &calculatorpb.SquareRootRequest{
+		Number: numner,
+	}
+	res, err := c.SquareRoot(context.Background(), request)
+	if err != nil {
+		respError, ok := status.FromError(err)
+		if ok {
+			// actual error from grpc(user error)
+			fmt.Println(respError.Message())
+			fmt.Println(respError.Code())
+			if respError.Code() == codes.InvalidArgument {
+				fmt.Println("We probebly sent a negetive number!")
+			}
+		} else {
+			log.Fatalf("Big Error calling Square Root: %v\n", err)
+		}
+	}
+	fmt.Printf("Resutl From Server: %v\n", res)
 }
 
 func doBiDiStreaming(c calculatorpb.CalculateServiceClient) {
