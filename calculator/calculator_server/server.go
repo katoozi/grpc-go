@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 	"log"
-	"math"
 	"net"
 	"time"
 
@@ -121,15 +120,17 @@ func (*server) FindMaximum(stream calculatorpb.CalculateService_FindMaximumServe
 				return err
 			}
 		}
-		numberResult := math.Max(float64(previusNumbers), float64(number))
+		numberResult := float64(number)
+		if numberResult > float64(previusNumbers) {
+			previusNumbers = int32(number)
+		}
 		err = stream.Send(&calculatorpb.FindMaximumResponse{
-			Result: int32(numberResult),
+			Result: previusNumbers,
 		})
 		if err != nil {
 			log.Fatalf("Error while send through stream: %v", err)
 			return err
 		}
-		previusNumbers = int32(number)
 	}
 }
 
