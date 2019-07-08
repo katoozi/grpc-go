@@ -27,7 +27,55 @@ func main() {
 	// doServerStreaming(c)
 
 	// do client streaming
-	doClientStreaming(c)
+	// doClientStreaming(c)
+
+	// fo BiDi streaming
+	doBiDiStreaming(c)
+}
+
+func doBiDiStreaming(c calculatorpb.CalculateServiceClient) {
+	fmt.Println("starting to do BiDi streaming rpc...")
+
+	stream, err := c.FindMaximum(context.Background())
+	if err != nil {
+		log.Fatalf("Error while call FindMaximum: %v", err)
+	}
+
+	requestNumbers := []int32{1, 2, 3, 4, 5, 4, 6, 7, 5, 8, 9, 2}
+
+	waitc := make(chan struct{})
+
+	go func() {
+		for _, number := range requestNumbers {
+			fmt.Printf("Send Request: %v\n", number)
+			err := stream.Send(&calculatorpb.FindMaximumRequest{
+				Number: number,
+			})
+			if err != nil {
+				log.Fatalf("Error while sending through stream: %v", err)
+			}
+			time.Sleep(1 * time.Second)
+		}
+		stream.CloseSend()
+	}()
+
+	go func() {
+		for {
+			res, err := stream.Recv()
+			if err == io.EOF {
+				break
+			}
+			if err != nil {
+				log.Fatalf("Error while receive from stream: %v", err)
+				break
+			}
+			fmt.Println("Response From Server. Grather Number: ", res.GetResult())
+		}
+		close(waitc)
+	}()
+
+	<-waitc
+
 }
 
 func doClientStreaming(c calculatorpb.CalculateServiceClient) {

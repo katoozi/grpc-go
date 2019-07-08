@@ -103,11 +103,11 @@ func (*server) FindMaximum(stream calculatorpb.CalculateService_FindMaximumServe
 
 	for {
 		req, err := stream.Recv()
-		if err != nil {
-			log.Fatalf("Error while reading stream: %v", err)
+		if err == io.EOF {
 			return nil
 		}
-		if err == io.EOF {
+		if err != nil {
+			log.Fatalf("Error while reading stream: %v", err)
 			return nil
 		}
 		number := req.GetNumber()
@@ -121,15 +121,15 @@ func (*server) FindMaximum(stream calculatorpb.CalculateService_FindMaximumServe
 				return err
 			}
 		}
-		previusNumbers := math.Max(float64(previusNumbers), float64(number))
+		numberResult := math.Max(float64(previusNumbers), float64(number))
 		err = stream.Send(&calculatorpb.FindMaximumResponse{
-			Result: int32(previusNumbers),
+			Result: int32(numberResult),
 		})
 		if err != nil {
 			log.Fatalf("Error while send through stream: %v", err)
 			return err
 		}
-
+		previusNumbers = int32(number)
 	}
 }
 
