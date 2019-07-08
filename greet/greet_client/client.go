@@ -10,22 +10,33 @@ import (
 	"github.com/katoozi/grpc-go-course/greet/greetpb"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/status"
 )
 
 func main() {
 	// we dont have ssl that why we have to use this => grpc.WithInsecure()
-	cc, err := grpc.Dial("localhost:50051", grpc.WithInsecure())
+	tls := true
+	opts := grpc.WithInsecure()
+	if tls {
+		certFile := "ssl/ca.crt"
+		creds, err := credentials.NewClientTLSFromFile(certFile, "")
+		if err != nil {
+			log.Fatalf("Error while loading ssl file: %v", err)
+		}
+		opts = grpc.WithTransportCredentials(creds)
+	}
+
+	cc, err := grpc.Dial("localhost:50051", opts)
 	if err != nil {
 		log.Fatalf("Failed to connect: %v", err)
 	}
 	defer cc.Close()
-
 	// Create CLient
 	c := greetpb.NewGreetServiceClient(cc)
 
 	// do unary rpc call
-	// doUnary(c)
+	doUnary(c)
 
 	// do server streaming call
 	// doServerStreaming(c)
@@ -37,8 +48,8 @@ func main() {
 	// doBiDiStreaming(c)
 
 	// do unary with deadline
-	doUnaryGreetWithDeadline(c, 5*time.Second) // should complete
-	doUnaryGreetWithDeadline(c, 1*time.Second) // should timeout
+	// doUnaryGreetWithDeadline(c, 5*time.Second) // should complete
+	// doUnaryGreetWithDeadline(c, 1*time.Second) // should timeout
 }
 
 func doUnaryGreetWithDeadline(c greetpb.GreetServiceClient, timeout time.Duration) {
