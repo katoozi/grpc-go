@@ -10,6 +10,8 @@ import (
 )
 
 func main() {
+	// set log flags for show more info in logging
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
 	cc, err := grpc.Dial("localhost:50051", grpc.WithInsecure())
 	if err != nil {

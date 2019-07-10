@@ -23,6 +23,8 @@ var collection *mongo.Collection
 type server struct{}
 
 func (*server) CreateBlog(ctx context.Context, req *blogpb.CreateBlogRequest) (*blogpb.CreateBlogResponse, error) {
+	log.Printf("CreateBlog rpc invoked with: %v\n", req)
+
 	blog := req.GetBlog()
 
 	data := bLogItem{
