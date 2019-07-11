@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"io"
 	"log"
 
 	"github.com/katoozi/grpc-go-course/blog/blogpb"
@@ -23,7 +24,10 @@ func main() {
 
 	// create new blog and after that reading blog
 	// first CreateBlog and then ReadBlog rpc will called
-	doCreateBlog(c)
+	// doCreateBlog(c)
+
+	// get list og blogs
+	doListBlog(c)
 }
 
 func doCreateBlog(c blogpb.BlogServiceClient) {
@@ -93,4 +97,25 @@ func doCreateBlog(c blogpb.BlogServiceClient) {
 		log.Fatalf("Error while DeleteBlog rpc: %v\n", delErr)
 	}
 	fmt.Printf("Object with %s id is deleted\n", delResp.GetBlogId())
+}
+
+func doListBlog(c blogpb.BlogServiceClient) {
+	fmt.Println("Start ListBlog server stream rpc...")
+
+	stream, err := c.ListBlog(context.Background(), &blogpb.ListBlogRequest{})
+	if err != nil {
+		log.Fatalf("Error while calling ListBlog: %v\n", err)
+	}
+	count := 0
+	for {
+		resp, err := stream.Recv()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			log.Fatalf("Error while reading stream: %v\n", err)
+		}
+		fmt.Printf("Response From Server %d: %v\n", count, resp.GetBlog())
+		count++
+	}
 }
