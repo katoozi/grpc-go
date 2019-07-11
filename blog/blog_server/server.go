@@ -148,6 +148,40 @@ func (*server) DeleteBlog(ctx context.Context, req *blogpb.DeleteBlogRequest) (*
 
 }
 
+func (*server) ListBlog(req *blogpb.ListBlogRequest, stream blogpb.BlogService_ListBlogServer) error {
+	fmt.Printf("ListBlog invoked with: %v\n", req)
+
+	ctx := context.Background()
+	cur, err := collection.Find(ctx, bson.M{})
+	if err != nil {
+		return status.Errorf(codes.Internal, "Unknown internal error: %v", err)
+	}
+	defer cur.Close(ctx)
+
+	for cur.Next(ctx) {
+		result := &bLogItem{}
+		err := cur.Decode(result)
+		if err != nil {
+			return status.Errorf(codes.Internal, "Unknown internal Error while iterate results: %v", err)
+		}
+		err = stream.Send(&blogpb.ListBlogResponse{
+			Blog: &blogpb.Blog{
+				Id:       result.ID.Hex(),
+				Title:    result.Title,
+				Content:  result.Content,
+				AuthorId: result.AuthorID,
+			},
+		})
+		if err != nil {
+			return err
+		}
+	}
+	if err := cur.Err(); err != nil {
+		return status.Errorf(codes.Internal, "Unknown internal error: %v", err)
+	}
+	return nil
+}
+
 func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	fmt.Println("Start Blog Service. Listning...")
@@ -188,7 +222,7 @@ func main() {
 
 	// block until control + c
 	<-ch
-	fmt.Println("Stopping The Server")
+	fmt.Println("\nStopping The Server")
 	// stopping the grpc server
 	s.Stop()
 	fmt.Println("Closing the Listener")
