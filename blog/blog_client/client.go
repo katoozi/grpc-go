@@ -82,4 +82,15 @@ func doCreateBlog(c blogpb.BlogServiceClient) {
 	}
 
 	fmt.Printf("Blog was updated:%v\n", updateResp)
+
+	// delete blog rpc
+	deleteReq := &blogpb.DeleteBlogRequest{
+		BlogId: updateResp.GetBlog().GetId(),
+		// BlogId: "5d274a89aba540a5a277f86f", // wrong test for test errors
+	}
+	delResp, delErr := c.DeleteBlog(context.Background(), deleteReq)
+	if delErr != nil {
+		log.Fatalf("Error while DeleteBlog rpc: %v\n", delErr)
+	}
+	fmt.Printf("Object with %s id is deleted\n", delResp.GetBlogId())
 }
