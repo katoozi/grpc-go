@@ -14,6 +14,7 @@ import (
 	"net/http"
 
 	"github.com/golang/protobuf/proto"
+	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/grpc-ecosystem/grpc-gateway/utilities"
 	"google.golang.org/grpc"
@@ -117,7 +118,7 @@ func request_BlogService_DeleteBlog_0(ctx context.Context, marshaler runtime.Mar
 }
 
 func request_BlogService_ListBlog_0(ctx context.Context, marshaler runtime.Marshaler, client BlogServiceClient, req *http.Request, pathParams map[string]string) (BlogService_ListBlogClient, runtime.ServerMetadata, error) {
-	var protoReq ListBlogRequest
+	var protoReq empty.Empty
 	var metadata runtime.ServerMetadata
 
 	stream, err := client.ListBlog(ctx, &protoReq)

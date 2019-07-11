@@ -9,6 +9,7 @@ import (
 	"os/signal"
 	"time"
 
+	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/golang/protobuf/ptypes/timestamp"
 	"github.com/katoozi/grpc-go-course/blog/blogpb"
 	"go.mongodb.org/mongo-driver/bson"
@@ -157,7 +158,7 @@ func (*server) DeleteBlog(ctx context.Context, req *blogpb.DeleteBlogRequest) (*
 
 }
 
-func (*server) ListBlog(req *blogpb.ListBlogRequest, stream blogpb.BlogService_ListBlogServer) error {
+func (*server) ListBlog(_ *empty.Empty, stream blogpb.BlogService_ListBlogServer) error {
 	fmt.Println("ListBlog invoked")
 
 	ctx := context.Background()

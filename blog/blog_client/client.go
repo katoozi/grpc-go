@@ -6,6 +6,7 @@ import (
 	"io"
 	"log"
 
+	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/katoozi/grpc-go-course/blog/blogpb"
 	"google.golang.org/grpc"
 )
@@ -102,7 +103,7 @@ func doCreateBlog(c blogpb.BlogServiceClient) {
 func doListBlog(c blogpb.BlogServiceClient) {
 	fmt.Println("Start ListBlog server stream rpc...")
 
-	stream, err := c.ListBlog(context.Background(), &blogpb.ListBlogRequest{})
+	stream, err := c.ListBlog(context.Background(), &empty.Empty{})
 	if err != nil {
 		log.Fatalf("Error while calling ListBlog: %v\n", err)
 	}
