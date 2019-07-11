@@ -110,7 +110,7 @@ func (*server) UpdateBlog(ctx context.Context, req *blogpb.UpdateBlogRequest) (*
 	data.Content = blog.GetContent()
 	data.Title = blog.GetTitle()
 
-	_, updateErr := collection.UpdateOne(context.Background(), filter, data)
+	_, updateErr := collection.ReplaceOne(context.Background(), filter, data)
 	if updateErr != nil {
 		return nil, status.Errorf(codes.Internal, "Cannot update: %v", updateErr)
 	}
