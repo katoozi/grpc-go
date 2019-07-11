@@ -116,6 +116,23 @@ func request_BlogService_DeleteBlog_0(ctx context.Context, marshaler runtime.Mar
 
 }
 
+func request_BlogService_ListBlog_0(ctx context.Context, marshaler runtime.Marshaler, client BlogServiceClient, req *http.Request, pathParams map[string]string) (BlogService_ListBlogClient, runtime.ServerMetadata, error) {
+	var protoReq ListBlogRequest
+	var metadata runtime.ServerMetadata
+
+	stream, err := client.ListBlog(ctx, &protoReq)
+	if err != nil {
+		return nil, metadata, err
+	}
+	header, err := stream.Header()
+	if err != nil {
+		return nil, metadata, err
+	}
+	metadata.HeaderMD = header
+	return stream, metadata, nil
+
+}
+
 // RegisterBlogServiceHandlerFromEndpoint is same as RegisterBlogServiceHandler but
 // automatically dials to "endpoint" and closes the connection when "ctx" gets done.
 func RegisterBlogServiceHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
@@ -234,6 +251,26 @@ func RegisterBlogServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux
 
 	})
 
+	mux.Handle("GET", pattern_BlogService_ListBlog_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		rctx, err := runtime.AnnotateContext(ctx, mux, req)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_BlogService_ListBlog_0(rctx, inboundMarshaler, client, req, pathParams)
+		ctx = runtime.NewServerMetadataContext(ctx, md)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_BlogService_ListBlog_0(ctx, mux, outboundMarshaler, w, req, func() (proto.Message, error) { return resp.Recv() }, mux.GetForwardResponseOptions()...)
+
+	})
+
 	return nil
 }
 
@@ -245,6 +282,8 @@ var (
 	pattern_BlogService_UpdateBlog_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"blog", "update"}, "", runtime.AssumeColonVerbOpt(true)))
 
 	pattern_BlogService_DeleteBlog_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 1, 0, 4, 1, 5, 1, 2, 2}, []string{"blog", "blog_id", "delete"}, "", runtime.AssumeColonVerbOpt(true)))
+
+	pattern_BlogService_ListBlog_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"blog", "list"}, "", runtime.AssumeColonVerbOpt(true)))
 )
 
 var (
@@ -255,4 +294,6 @@ var (
 	forward_BlogService_UpdateBlog_0 = runtime.ForwardResponseMessage
 
 	forward_BlogService_DeleteBlog_0 = runtime.ForwardResponseMessage
+
+	forward_BlogService_ListBlog_0 = runtime.ForwardResponseStream
 )
