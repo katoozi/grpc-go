@@ -24,7 +24,7 @@ import (
 
 var collection *mongo.Collection
 
-type bLogItem struct {
+type blogItem struct {
 	ID         primitive.ObjectID   `bson:"_id,omitempty"`
 	AuthorID   string               `bson:"author_id"`
 	Content    string               `bson:"content"`
@@ -39,7 +39,7 @@ func (*server) CreateBlog(ctx context.Context, req *blogpb.CreateBlogRequest) (*
 
 	blog := req.GetBlog()
 
-	data := bLogItem{
+	data := blogItem{
 		AuthorID: blog.GetAuthorId(),
 		Content:  blog.GetContent(),
 		Title:    blog.GetTitle(),
@@ -77,7 +77,7 @@ func (*server) ReadBlog(ctx context.Context, req *blogpb.ReadBlogRequest) (*blog
 	if err != nil {
 		return nil, status.Errorf(codes.InvalidArgument, "Cannot Parse ID: %v", err)
 	}
-	data := &bLogItem{}
+	data := &blogItem{}
 	filter := bson.M{"_id": oid}
 
 	res := collection.FindOne(context.Background(), filter)
@@ -105,7 +105,7 @@ func (*server) UpdateBlog(ctx context.Context, req *blogpb.UpdateBlogRequest) (*
 		return nil, status.Errorf(codes.InvalidArgument, "Cannot parse id: %v", err)
 	}
 
-	data := &bLogItem{}
+	data := &blogItem{}
 	filter := bson.M{"_id": oid}
 
 	res := collection.FindOne(context.Background(), filter)
@@ -169,7 +169,7 @@ func (*server) ListBlog(_ *empty.Empty, stream blogpb.BlogService_ListBlogServer
 	defer cur.Close(ctx)
 
 	for cur.Next(ctx) {
-		result := &bLogItem{}
+		result := &blogItem{}
 		err := cur.Decode(result)
 		if err != nil {
 			return status.Errorf(codes.Internal, "Unknown internal Error while iterate results: %v", err)
