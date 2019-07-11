@@ -1,16 +1,29 @@
+// [START declaration]
 syntax = "proto3";
 
 package blog;
 
 import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
 
 option go_package = "blogpb";
+// [END declaration]
+
+// [START java_declaration]
+option java_package = "com.example.tutorial";
+option java_outer_classname = "BlogProtos";
+// [END java_declaration]
+
+// [START csharp_declaration]
+option csharp_namespace = "Google.Protobuf.Examples.Blog";
+// [END csharp_declaration]
 
 message Blog{
     string id = 1;
     string author_id = 2;
     string title = 3;
     string content = 4;
+    google.protobuf.Timestamp create_time = 5;
 }
 
 message CreateBlogRequest{
@@ -57,7 +70,7 @@ service BlogService{
     rpc CreateBlog(CreateBlogRequest) returns (CreateBlogResponse){
         option (google.api.http) = {
             post: "/blog/create",
-            body: "*"
+            body: "blog"
         };
     };
     rpc ReadBlog(ReadBlogRequest) returns (ReadBlogResponse){

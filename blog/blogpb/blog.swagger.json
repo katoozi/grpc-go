@@ -32,7 +32,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/blogCreateBlogRequest"
+              "$ref": "#/definitions/blogBlog"
             }
           }
         ],
@@ -147,14 +147,10 @@
         },
         "content": {
           "type": "string"
-        }
-      }
-    },
-    "blogCreateBlogRequest": {
-      "type": "object",
-      "properties": {
-        "blog": {
-          "$ref": "#/definitions/blogBlog"
+        },
+        "create_time": {
+          "type": "string",
+          "format": "date-time"
         }
       }
     },

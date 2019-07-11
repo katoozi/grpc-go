@@ -9,6 +9,7 @@ import (
 	"os/signal"
 	"time"
 
+	"github.com/golang/protobuf/ptypes/timestamp"
 	"github.com/katoozi/grpc-go-course/blog/blogpb"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -23,10 +24,11 @@ import (
 var collection *mongo.Collection
 
 type bLogItem struct {
-	ID       primitive.ObjectID `bson:"_id,omitempty"`
-	AuthorID string             `bson:"author_id"`
-	Content  string             `bson:"content"`
-	Title    string             `bson:"title"`
+	ID         primitive.ObjectID   `bson:"_id,omitempty"`
+	AuthorID   string               `bson:"author_id"`
+	Content    string               `bson:"content"`
+	Title      string               `bson:"title"`
+	CreateTime *timestamp.Timestamp `bson:"create_time"`
 }
 
 type server struct{}
@@ -40,6 +42,9 @@ func (*server) CreateBlog(ctx context.Context, req *blogpb.CreateBlogRequest) (*
 		AuthorID: blog.GetAuthorId(),
 		Content:  blog.GetContent(),
 		Title:    blog.GetTitle(),
+		CreateTime: &timestamp.Timestamp{
+			Seconds: time.Now().Unix(),
+		},
 	}
 
 	res, err := collection.InsertOne(context.Background(), data)
@@ -81,10 +86,11 @@ func (*server) ReadBlog(ctx context.Context, req *blogpb.ReadBlogRequest) (*blog
 
 	return &blogpb.ReadBlogResponse{
 		Blog: &blogpb.Blog{
-			Id:       data.ID.Hex(),
-			AuthorId: data.AuthorID,
-			Title:    data.Title,
-			Content:  data.Content,
+			Id:         data.ID.Hex(),
+			AuthorId:   data.AuthorID,
+			Title:      data.Title,
+			Content:    data.Content,
+			CreateTime: data.CreateTime,
 		},
 	}, nil
 }
@@ -110,6 +116,8 @@ func (*server) UpdateBlog(ctx context.Context, req *blogpb.UpdateBlogRequest) (*
 	data.AuthorID = blog.GetAuthorId()
 	data.Content = blog.GetContent()
 	data.Title = blog.GetTitle()
+	// do not update create_time
+	// data.CreateTime = blog.GetCreateTime()
 
 	_, updateErr := collection.ReplaceOne(context.Background(), filter, data)
 	if updateErr != nil {
@@ -167,10 +175,11 @@ func (*server) ListBlog(req *blogpb.ListBlogRequest, stream blogpb.BlogService_L
 		}
 		err = stream.Send(&blogpb.ListBlogResponse{
 			Blog: &blogpb.Blog{
-				Id:       result.ID.Hex(),
-				Title:    result.Title,
-				Content:  result.Content,
-				AuthorId: result.AuthorID,
+				Id:         result.ID.Hex(),
+				Title:      result.Title,
+				Content:    result.Content,
+				AuthorId:   result.AuthorID,
+				CreateTime: result.CreateTime,
 			},
 		})
 		if err != nil {
