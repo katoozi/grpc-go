@@ -150,7 +150,7 @@ func (*server) DeleteBlog(ctx context.Context, req *blogpb.DeleteBlogRequest) (*
 }
 
 func (*server) ListBlog(req *blogpb.ListBlogRequest, stream blogpb.BlogService_ListBlogServer) error {
-	fmt.Printf("ListBlog invoked with: %v\n", req)
+	fmt.Println("ListBlog invoked")
 
 	ctx := context.Background()
 	cur, err := collection.Find(ctx, bson.M{})
