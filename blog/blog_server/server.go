@@ -125,6 +125,29 @@ func (*server) UpdateBlog(ctx context.Context, req *blogpb.UpdateBlogRequest) (*
 	}, nil
 }
 
+func (*server) DeleteBlog(ctx context.Context, req *blogpb.DeleteBlogRequest) (*blogpb.DeleteBlogResponse, error) {
+	fmt.Printf("DeleteBlog invoked with: %v\n", req)
+
+	blogID, err := primitive.ObjectIDFromHex(req.GetBlogId())
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "Cannot Parse id: %v\n", err)
+	}
+
+	filter := bson.M{"_id": blogID}
+
+	delResp, delErr := collection.DeleteOne(context.Background(), filter)
+	if delErr != nil {
+		return nil, status.Errorf(codes.Internal, "Cannot Delete object %v\n", delErr)
+	}
+	if delResp.DeletedCount == 0 {
+		return nil, status.Errorf(codes.NotFound, "Object with %s not found", blogID.Hex())
+	}
+	return &blogpb.DeleteBlogResponse{
+		BlogId: req.GetBlogId(),
+	}, nil
+
+}
+
 func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	fmt.Println("Start Blog Service. Listning...")
