@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package blog;
 
+import "google/api/annotations.proto";
+
 option go_package = "blogpb";
 
 message Blog{
@@ -52,7 +54,12 @@ message ListBlogResponse{
 }
 
 service BlogService{
-    rpc CreateBlog(CreateBlogRequest) returns (CreateBlogResponse){};
+    rpc CreateBlog(CreateBlogRequest) returns (CreateBlogResponse){
+        option (google.api.http) = {
+            post: "/blog/create",
+            body: "*"
+        };
+    };
     rpc ReadBlog(ReadBlogRequest) returns (ReadBlogResponse){}; // return NOT_FOUND if not found.
     rpc UpdateBlog(UpdateBlogRequest) returns (UpdateBlogResponse){}; // return NOT_FOUND if not found.
     rpc DeleteBlog(DeleteBlogRequest) returns (DeleteBlogResponse){}; // return NOT_FOUND if not found.
