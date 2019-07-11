@@ -65,7 +65,12 @@ service BlogService{
             get: "/blog/{blog_id}/read"
         };
     }; // return NOT_FOUND if not found.
-    rpc UpdateBlog(UpdateBlogRequest) returns (UpdateBlogResponse){}; // return NOT_FOUND if not found.
+    rpc UpdateBlog(UpdateBlogRequest) returns (UpdateBlogResponse){
+        option (google.api.http) = {
+            put: "/blog/update",
+            body: "blog"
+        };
+    }; // return NOT_FOUND if not found.
     rpc DeleteBlog(DeleteBlogRequest) returns (DeleteBlogResponse){}; // return NOT_FOUND if not found.
     rpc ListBlog(ListBlogRequest) returns (stream ListBlogResponse){};
 }
