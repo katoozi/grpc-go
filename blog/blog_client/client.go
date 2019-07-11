@@ -21,7 +21,8 @@ func main() {
 
 	c := blogpb.NewBlogServiceClient(cc)
 
-	// create new blog
+	// create new blog and after that reading blog
+	// first CreateBlog and then ReadBlog rpc will called
 	doCreateBlog(c)
 }
 
@@ -41,4 +42,26 @@ func doCreateBlog(c blogpb.BlogServiceClient) {
 		log.Fatalf("Error while calling CreateBlog: %v", err)
 	}
 	log.Printf("Result From Server: %v", resp)
+
+	fmt.Println("ReadBlog Section is start...")
+	reqReadBlog := &blogpb.ReadBlogRequest{
+		BlogId: resp.GetBlog().GetId(),
+	}
+
+	resReadBlog, err := c.ReadBlog(context.Background(), reqReadBlog)
+	if err != nil {
+		log.Fatalf("Error while reading blog: %v\n", err)
+	}
+	fmt.Printf("ReadBlog rpc result from server: %v\n", resReadBlog)
+
+	// read blog with wrong id for testing
+	reqReadBlog = &blogpb.ReadBlogRequest{
+		BlogId: "5d2731ccb815173786273e1f",
+	}
+
+	resReadBlog, err = c.ReadBlog(context.Background(), reqReadBlog)
+	if err != nil {
+		log.Fatalf("Error while reading blog: %v\n", err)
+	}
+	fmt.Printf("ReadBlog rpc result from server: %v\n", resReadBlog)
 }
