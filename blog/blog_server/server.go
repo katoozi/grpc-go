@@ -88,6 +88,43 @@ func (*server) ReadBlog(ctx context.Context, req *blogpb.ReadBlogRequest) (*blog
 	}, nil
 }
 
+func (*server) UpdateBlog(ctx context.Context, req *blogpb.UpdateBlogRequest) (*blogpb.UpdateBlogResponse, error) {
+	fmt.Printf("UpdateBlog invoked with: %v\n", req)
+
+	blog := req.GetBlog()
+	oid, err := primitive.ObjectIDFromHex(blog.GetId())
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "Cannot parse id: %v", err)
+	}
+
+	data := &bLogItem{}
+	filter := bson.M{"_id": oid}
+
+	res := collection.FindOne(context.Background(), filter)
+	if err = res.Decode(&data); err != nil {
+		return nil, status.Errorf(codes.NotFound, "blog not found in db: %v", res)
+	}
+
+	// update internal struct
+	data.AuthorID = blog.GetAuthorId()
+	data.Content = blog.GetContent()
+	data.Title = blog.GetTitle()
+
+	_, updateErr := collection.UpdateOne(context.Background(), filter, data)
+	if updateErr != nil {
+		return nil, status.Errorf(codes.Internal, "Cannot update: %v", updateErr)
+	}
+
+	return &blogpb.UpdateBlogResponse{
+		Blog: &blogpb.Blog{
+			Id:       data.ID.Hex(),
+			AuthorId: data.AuthorID,
+			Title:    data.Title,
+			Content:  data.Content,
+		},
+	}, nil
+}
+
 func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	fmt.Println("Start Blog Service. Listning...")
