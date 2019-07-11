@@ -55,13 +55,31 @@ func doCreateBlog(c blogpb.BlogServiceClient) {
 	fmt.Printf("ReadBlog rpc result from server: %v\n", resReadBlog)
 
 	// read blog with wrong id for testing
-	reqReadBlog = &blogpb.ReadBlogRequest{
-		BlogId: "5d2731ccb815173786273e1f",
+	// reqReadBlog = &blogpb.ReadBlogRequest{
+	// 	BlogId: "5d2731ccb815173786273e1f",
+	// }
+
+	// resReadBlog, err = c.ReadBlog(context.Background(), reqReadBlog)
+	// if err != nil {
+	// 	log.Fatalf("Error while reading blog: %v\n", err)
+	// }
+	// fmt.Printf("ReadBlog rpc result from server: %v\n", resReadBlog)
+
+	// updateBlog
+
+	newBlog := &blogpb.UpdateBlogRequest{
+		Blog: &blogpb.Blog{
+			Id:       resp.GetBlog().GetId(),
+			Title:    "Changes Title",
+			AuthorId: "Change Author",
+			Content:  "Change Content",
+		},
 	}
 
-	resReadBlog, err = c.ReadBlog(context.Background(), reqReadBlog)
-	if err != nil {
-		log.Fatalf("Error while reading blog: %v\n", err)
+	updateResp, updateErr := c.UpdateBlog(context.Background(), newBlog)
+	if updateErr != nil {
+		log.Fatalf("Error From Server: %v", updateErr)
 	}
-	fmt.Printf("ReadBlog rpc result from server: %v\n", resReadBlog)
+
+	fmt.Printf("Blog was updated:%v\n", updateResp)
 }
