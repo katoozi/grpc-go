@@ -71,6 +71,10 @@ service BlogService{
             body: "blog"
         };
     }; // return NOT_FOUND if not found.
-    rpc DeleteBlog(DeleteBlogRequest) returns (DeleteBlogResponse){}; // return NOT_FOUND if not found.
+    rpc DeleteBlog(DeleteBlogRequest) returns (DeleteBlogResponse){
+        option (google.api.http) = {
+            delete: "/blog/{blog_id}/delete"
+        };
+    }; // return NOT_FOUND if not found.
     rpc ListBlog(ListBlogRequest) returns (stream ListBlogResponse){};
 }
