@@ -60,7 +60,7 @@ message DeleteBlogResponse{
 }
 
 message ListBlogResponse{
-    Blog blog = 1;
+    repeated Blog blog = 1;
 }
 
 service BlogService{
@@ -86,7 +86,7 @@ service BlogService{
             delete: "/blog/{blog_id}/delete"
         };
     }; // return NOT_FOUND if not found.
-    rpc ListBlog(google.protobuf.Empty) returns (stream ListBlogResponse){
+    rpc ListBlog(google.protobuf.Empty) returns (ListBlogResponse){
         option (google.api.http) = {
             get: "/blog/list"
         };

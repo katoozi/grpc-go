@@ -158,39 +158,34 @@ func (*server) DeleteBlog(ctx context.Context, req *blogpb.DeleteBlogRequest) (*
 
 }
 
-func (*server) ListBlog(_ *empty.Empty, stream blogpb.BlogService_ListBlogServer) error {
+func (*server) ListBlog(ctx context.Context, _ *empty.Empty) (*blogpb.ListBlogResponse, error) {
 	fmt.Println("ListBlog invoked")
 
-	ctx := context.Background()
-	cur, err := collection.Find(ctx, bson.M{})
+	context := context.Background()
+	cur, err := collection.Find(context, bson.M{})
 	if err != nil {
-		return status.Errorf(codes.Internal, "Unknown internal error: %v", err)
+		return nil, status.Errorf(codes.Internal, "Unknown internal error: %v", err)
 	}
-	defer cur.Close(ctx)
+	defer cur.Close(context)
 
-	for cur.Next(ctx) {
+	blogList := []*blogpb.Blog{}
+	for cur.Next(context) {
 		result := &blogItem{}
 		err := cur.Decode(result)
 		if err != nil {
-			return status.Errorf(codes.Internal, "Unknown internal Error while iterate results: %v", err)
+			return nil, status.Errorf(codes.Internal, "Unknown internal Error while iterate results: %v", err)
 		}
-		err = stream.Send(&blogpb.ListBlogResponse{
-			Blog: &blogpb.Blog{
-				Id:         result.ID.Hex(),
-				Title:      result.Title,
-				Content:    result.Content,
-				AuthorId:   result.AuthorID,
-				CreateTime: result.CreateTime,
-			},
+		blogList = append(blogList, &blogpb.Blog{
+			Id:         result.ID.Hex(),
+			Title:      result.Title,
+			Content:    result.Content,
+			AuthorId:   result.AuthorID,
+			CreateTime: result.CreateTime,
 		})
-		if err != nil {
-			return err
-		}
 	}
-	if err := cur.Err(); err != nil {
-		return status.Errorf(codes.Internal, "Unknown internal error: %v", err)
-	}
-	return nil
+	return &blogpb.ListBlogResponse{
+		Blog: blogList,
+	}, nil
 }
 
 func main() {

@@ -117,20 +117,12 @@ func request_BlogService_DeleteBlog_0(ctx context.Context, marshaler runtime.Mar
 
 }
 
-func request_BlogService_ListBlog_0(ctx context.Context, marshaler runtime.Marshaler, client BlogServiceClient, req *http.Request, pathParams map[string]string) (BlogService_ListBlogClient, runtime.ServerMetadata, error) {
+func request_BlogService_ListBlog_0(ctx context.Context, marshaler runtime.Marshaler, client BlogServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq empty.Empty
 	var metadata runtime.ServerMetadata
 
-	stream, err := client.ListBlog(ctx, &protoReq)
-	if err != nil {
-		return nil, metadata, err
-	}
-	header, err := stream.Header()
-	if err != nil {
-		return nil, metadata, err
-	}
-	metadata.HeaderMD = header
-	return stream, metadata, nil
+	msg, err := client.ListBlog(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
 
 }
 
@@ -268,7 +260,7 @@ func RegisterBlogServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux
 			return
 		}
 
-		forward_BlogService_ListBlog_0(ctx, mux, outboundMarshaler, w, req, func() (proto.Message, error) { return resp.Recv() }, mux.GetForwardResponseOptions()...)
+		forward_BlogService_ListBlog_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -296,5 +288,5 @@ var (
 
 	forward_BlogService_DeleteBlog_0 = runtime.ForwardResponseMessage
 
-	forward_BlogService_ListBlog_0 = runtime.ForwardResponseStream
+	forward_BlogService_ListBlog_0 = runtime.ForwardResponseMessage
 )
