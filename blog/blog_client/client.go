@@ -3,19 +3,36 @@ package main
 import (
 	"context"
 	"fmt"
-	"io"
 	"log"
 
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/katoozi/grpc-go-course/blog/blogpb"
+	"golang.org/x/oauth2"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
+	"google.golang.org/grpc/credentials/oauth"
+	"google.golang.org/grpc/testdata"
 )
 
 func main() {
 	// set log flags for show more info in logging
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
-	cc, err := grpc.Dial("localhost:50051", grpc.WithInsecure())
+	perRPC := oauth.NewOauthAccess(fetchToken())
+	creds, err := credentials.NewClientTLSFromFile(testdata.Path("ca.pem"), "x.test.youtube.com")
+	if err != nil {
+		log.Fatalf("failed to load credentials: %v", err)
+	}
+	opts := []grpc.DialOption{
+		// In addition to the following grpc.DialOption, callers may also use
+		// the grpc.CallOption grpc.PerRPCCredentials with the RPC invocation
+		// itself.
+		// See: https://godoc.org/google.golang.org/grpc#PerRPCCredentials
+		grpc.WithPerRPCCredentials(perRPC),
+		// grpc.WithInsecure(),
+		grpc.WithTransportCredentials(creds),
+	}
+	cc, err := grpc.Dial("localhost:50051", opts...)
 	if err != nil {
 		log.Fatalf("Error while connect to server: %v", err)
 	}
@@ -29,6 +46,15 @@ func main() {
 
 	// get list og blogs
 	doListBlog(c)
+}
+
+// fetchToken simulates a token lookup and omits the details of proper token
+// acquisition. For examples of how to acquire an OAuth2 token, see:
+// https://godoc.org/golang.org/x/oauth2
+func fetchToken() *oauth2.Token {
+	return &oauth2.Token{
+		AccessToken: "123456789",
+	}
 }
 
 func doCreateBlog(c blogpb.BlogServiceClient) {
@@ -103,20 +129,21 @@ func doCreateBlog(c blogpb.BlogServiceClient) {
 func doListBlog(c blogpb.BlogServiceClient) {
 	fmt.Println("Start ListBlog server stream rpc...")
 
-	stream, err := c.ListBlog(context.Background(), &empty.Empty{})
+	resp, err := c.ListBlog(context.Background(), &empty.Empty{})
 	if err != nil {
 		log.Fatalf("Error while calling ListBlog: %v\n", err)
 	}
-	count := 0
-	for {
-		resp, err := stream.Recv()
-		if err == io.EOF {
-			break
-		}
-		if err != nil {
-			log.Fatalf("Error while reading stream: %v\n", err)
-		}
-		fmt.Printf("Response From Server %d: %v\n", count, resp.GetBlog())
-		count++
-	}
+	// count := 0
+	// for {
+	// 	resp, err := stream.Recv()
+	// 	if err == io.EOF {
+	// 		break
+	// 	}
+	// 	if err != nil {
+	// 		log.Fatalf("Error while reading stream: %v\n", err)
+	// 	}
+	// 	fmt.Printf("Response From Server %d: %v\n", count, resp.GetBlog())
+	// 	count++
+	// }
+	fmt.Printf("Response From Server: %v\n", resp)
 }
