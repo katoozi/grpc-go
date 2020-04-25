@@ -7,7 +7,7 @@ import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/empty.proto";
 
-option go_package = "blogpb";
+option go_package = "blog/blogpb";
 // [END declaration]
 
 // [START java_declaration]

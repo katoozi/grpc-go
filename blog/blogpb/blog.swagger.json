@@ -4,10 +4,6 @@
     "title": "blog/blogpb/blog.proto",
     "version": "version not set"
   },
-  "schemes": [
-    "http",
-    "https"
-  ],
   "consumes": [
     "application/json"
   ],
@@ -17,12 +13,18 @@
   "paths": {
     "/blog/create": {
       "post": {
-        "operationId": "CreateBlog",
+        "operationId": "BlogService_CreateBlog",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/blogCreateBlogResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response",
+            "schema": {
+              "$ref": "#/definitions/runtimeError"
             }
           }
         },
@@ -43,12 +45,18 @@
     },
     "/blog/list": {
       "get": {
-        "operationId": "ListBlog",
+        "operationId": "BlogService_ListBlog",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/blogListBlogResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response",
+            "schema": {
+              "$ref": "#/definitions/runtimeError"
             }
           }
         },
@@ -59,12 +67,18 @@
     },
     "/blog/update": {
       "put": {
-        "operationId": "UpdateBlog",
+        "operationId": "BlogService_UpdateBlog",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/blogUpdateBlogResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response",
+            "schema": {
+              "$ref": "#/definitions/runtimeError"
             }
           }
         },
@@ -85,12 +99,18 @@
     },
     "/blog/{blog_id}/delete": {
       "delete": {
-        "operationId": "DeleteBlog",
+        "operationId": "BlogService_DeleteBlog",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/blogDeleteBlogResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response",
+            "schema": {
+              "$ref": "#/definitions/runtimeError"
             }
           }
         },
@@ -109,12 +129,18 @@
     },
     "/blog/{blog_id}/read": {
       "get": {
-        "operationId": "ReadBlog",
+        "operationId": "BlogService_ReadBlog",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/blogReadBlogResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response",
+            "schema": {
+              "$ref": "#/definitions/runtimeError"
             }
           }
         },
@@ -194,6 +220,39 @@
       "properties": {
         "blog": {
           "$ref": "#/definitions/blogBlog"
+        }
+      }
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "type_url": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string",
+          "format": "byte"
+        }
+      }
+    },
+    "runtimeError": {
+      "type": "object",
+      "properties": {
+        "error": {
+          "type": "string"
+        },
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/protobufAny"
+          }
         }
       }
     }
